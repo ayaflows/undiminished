@@ -1,0 +1,1049 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Undiminished</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* Layout: host dashboard beside guest phones. Demo mode shows all four at once on wide screens, tabs on narrow ones. Committed night-room look. */
+:root {
+  --bg: #120a1f;
+  --panel: #180f27;
+  --surface: #221535;
+  --surface-2: #2b1c42;
+  --line: rgba(214, 190, 255, 0.16);
+  --line-strong: rgba(214, 190, 255, 0.32);
+  --fg: #f4ecff;
+  --muted: #b9a7d8;
+  --dim: #8f7bb2;
+  --accent: #c99bff;
+  --accent-ink: #1a0d2c;
+  --warm: #ffb98a;
+  --alert: #ff9b9b;
+  --alert-bg: rgba(255, 120, 120, 0.12);
+  --ok: #92e6bb;
+  --display: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.5; -webkit-tap-highlight-color: transparent; }
+button { font: inherit; color: inherit; cursor: pointer; border: none; background: none; }
+button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+h1, h2, h3 { margin: 0; font-weight: 400; text-wrap: balance; }
+p { margin: 0; }
+.wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 16px 32px; }
+
+.btn { background: var(--accent); color: var(--accent-ink); font-weight: 600; border-radius: 999px; padding: 12px 20px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; }
+.btn.ghost { background: transparent; color: var(--fg); border: 1px solid var(--line-strong); font-weight: 500; }
+.btn.quiet { background: var(--surface-2); color: var(--fg); font-weight: 500; }
+.btn.sm { padding: 6px 14px; min-height: 36px; font-size: 14px; }
+.btn.block { width: 100%; }
+.btn:disabled { opacity: .4; cursor: default; }
+.link { color: var(--muted); text-decoration: underline; text-underline-offset: 3px; font-size: 14px; padding: 6px 2px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 1px solid var(--line-strong); border-radius: 999px; padding: 9px 14px; font-size: 15px; min-height: 40px; }
+.chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+input[type=text], input[type=email], textarea, select { width: 100%; font: inherit; color: var(--fg); background: rgba(255,255,255,.05); border: 1px solid var(--line-strong); border-radius: 12px; padding: 11px 13px; }
+textarea { resize: none; }
+select { appearance: none; }
+.label { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+.muted { color: var(--muted); }
+.dim { color: var(--dim); }
+.small { font-size: 14px; }
+.serif { font-family: var(--display); }
+.stack { display: flex; flex-direction: column; gap: 14px; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.row > .grow { flex: 1; min-width: 0; }
+.pill { font-size: 12px; border-radius: 999px; padding: 2px 10px; border: 1px solid var(--line-strong); color: var(--muted); white-space: nowrap; }
+.pill.ok { color: var(--ok); border-color: rgba(146,230,187,.4); }
+.pill.warm { color: var(--warm); border-color: rgba(255,185,138,.45); }
+.pill.alert { color: var(--alert); border-color: rgba(255,155,155,.5); }
+.orb { width: 64px; height: 64px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #ecd9ff, var(--accent) 45%, #5b2aa0); animation: breathe 3.4s ease-in-out infinite; }
+@keyframes breathe { 50% { transform: scale(1.07); } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* Landing */
+.landing { max-width: 560px; margin: 0 auto; padding-block: 48px 40px; display: flex; flex-direction: column; gap: 22px; }
+.landing h1 { font-family: var(--display); font-size: 52px; line-height: 1; }
+.landing .lede { color: var(--muted); font-size: 17px; max-width: 46ch; }
+.choice { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+.choice h2 { font-family: var(--display); font-size: 26px; }
+
+/* Demo layout */
+.demo-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.demo-bar h1 { font-family: var(--display); font-size: 28px; }
+.demo-tabs { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 14px; }
+.demo-tabs button { border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; color: var(--muted); white-space: nowrap; font-size: 14px; }
+.demo-tabs button[aria-pressed="true"] { background: var(--surface-2); color: var(--fg); border-color: var(--line-strong); }
+.demo-grid { display: grid; grid-template-columns: 1fr; gap: 16px; align-items: start; }
+.pane.is-off { display: none; }
+.phone-wrap { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.phone-label { font-size: 13px; color: var(--dim); }
+.phone { width: 100%; max-width: 380px; height: min(700px, calc(100vh - 150px)); min-height: 520px; border: 1px solid var(--line-strong); border-radius: 32px; overflow: hidden; background: var(--bg); box-shadow: 0 0 0 6px #0b0614; }
+@media (min-width: 1360px) {
+  .demo-tabs { display: none; }
+  .demo-grid { grid-template-columns: minmax(420px, 1fr) repeat(3, minmax(250px, 290px)); }
+  .pane.is-off { display: block; }
+  .pane.host-pane { max-height: calc(100vh - 110px); overflow: auto; border: 1px solid var(--line); border-radius: 20px; }
+  .phone { height: calc(100vh - 150px); min-height: 560px; }
+}
+
+/* Guest app */
+.g { height: 100%; display: flex; flex-direction: column; background: var(--bg); position: relative; }
+.g-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 14px 16px 10px; border-bottom: 1px solid var(--line); }
+.g-stage { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); }
+.sos-btn { font-size: 13px; color: var(--alert); border: 1px solid rgba(255,155,155,.45); border-radius: 999px; padding: 6px 12px; min-height: 34px; }
+.g-net { font-size: 13px; color: var(--warm); padding: 8px 16px; background: rgba(255,185,138,.08); }
+.g-body { flex: 1; overflow: auto; padding: 20px 16px 28px; }
+.g-body h2 { font-family: var(--display); font-size: 30px; line-height: 1.1; }
+.prompt { font-family: var(--display); font-style: italic; font-size: 25px; line-height: 1.25; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.rest { min-height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 16px; text-align: left; }
+.rest p { color: var(--muted); font-size: 17px; max-width: 32ch; }
+.steps { display: flex; gap: 4px; }
+.steps span { flex: 1; height: 3px; border-radius: 2px; background: var(--line); }
+.steps span.on { background: var(--accent); }
+.timer { font-size: 40px; font-family: var(--display); font-variant-numeric: tabular-nums; line-height: 1; }
+.bar { height: 4px; border-radius: 2px; background: var(--line); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--accent); transition: width .25s linear; }
+.cold { background: linear-gradient(180deg, #1b1340, #0f0820); border-radius: 18px; padding: 28px 18px; text-align: center; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.brag-card { background: linear-gradient(160deg, #2c1850, #1a0f2d); border: 1px solid rgba(201,155,255,.35); border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+.brag-card q { font-family: var(--display); font-style: italic; font-size: 22px; line-height: 1.3; }
+.toggle { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.toggle:last-child { border-bottom: none; }
+.switch { width: 50px; height: 30px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line-strong); position: relative; flex: none; }
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: var(--dim); transition: transform .2s, background .2s; }
+.switch[aria-checked="true"] { background: rgba(201,155,255,.35); border-color: var(--accent); }
+.switch[aria-checked="true"]::after { transform: translateX(20px); background: var(--accent); }
+.strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.strip i { aspect-ratio: 3 / 4; border-radius: 8px; background: linear-gradient(160deg, #3b2462, #1d1233); display: grid; place-items: center; font-style: normal; font-family: var(--display); font-size: 14px; color: var(--muted); max-width: 100%; }
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--surface); border-top: 1px solid var(--line-strong); border-radius: 22px 22px 0 0; padding: 20px 16px calc(20px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 12px; box-shadow: 0 -20px 40px rgba(0,0,0,.4); z-index: 3; }
+.applause { width: 100%; padding: 18px; border-radius: 18px; background: rgba(255,185,138,.14); border: 1px solid rgba(255,185,138,.45); color: var(--warm); font-weight: 600; font-size: 17px; }
+.guest-page { height: 100%; max-width: 520px; margin: 0 auto; }
+
+/* Host dashboard */
+.h { background: var(--panel); display: flex; flex-direction: column; min-height: 100%; }
+.host-page { max-width: 980px; margin: 0 auto; }
+.h-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 18px 18px 10px; flex-wrap: wrap; }
+.h-title { font-family: var(--display); font-size: 32px; line-height: 1.05; }
+.eyebrow { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); }
+.code { font-family: var(--body); letter-spacing: .14em; color: var(--fg); }
+.h-net { margin: 0 18px 8px; font-size: 13px; color: var(--warm); }
+.alerts { display: flex; flex-direction: column; gap: 8px; padding: 0 18px; }
+.alert { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 14px; border-radius: 14px; background: var(--alert-bg); border: 1px solid rgba(255,155,155,.5); color: var(--fg); }
+.alert b { color: var(--alert); }
+.h-stage { margin: 10px 18px 0; padding: 12px 14px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.h-stage .now { flex: 1; min-width: 160px; }
+.h-stage .now b { font-family: var(--display); font-size: 22px; font-weight: 400; display: block; line-height: 1.1; }
+.h-tabs { display: flex; gap: 4px; padding: 14px 18px 0; border-bottom: 1px solid var(--line); }
+.h-tabs button { padding: 10px 14px; border-bottom: 2px solid transparent; color: var(--muted); font-weight: 500; }
+.h-tabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--accent); }
+.h-body { padding: 16px 18px 28px; display: flex; flex-direction: column; gap: 14px; }
+.h-card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.h-card h3 { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); font-weight: 600; }
+.room-code { font-size: 44px; letter-spacing: .16em; font-weight: 600; line-height: 1; }
+.qr { width: 156px; height: 156px; background: #fff; border-radius: 10px; padding: 4px; display: grid; place-items: center; flex: none; }
+.qr img, .qr canvas { width: 148px !important; height: 148px !important; }
+.list { display: flex; flex-direction: column; }
+.li { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.li:last-child { border-bottom: none; }
+.li .who { font-weight: 600; min-width: 80px; }
+.li .grow { flex: 1; min-width: 140px; color: var(--muted); font-size: 14px; }
+.groups { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.group { border: 1px dashed var(--line-strong); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.member { border: 1px solid var(--line-strong); border-radius: 999px; padding: 6px 12px; text-align: left; font-size: 14px; }
+.member[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.ros { display: flex; flex-direction: column; gap: 4px; }
+.ros button { display: flex; gap: 10px; align-items: center; text-align: left; padding: 8px 10px; border-radius: 10px; font-size: 14px; }
+.ros button[aria-current="step"] { background: var(--surface-2); outline: 1px solid var(--accent); }
+.ros .num { width: 22px; color: var(--dim); font-variant-numeric: tabular-nums; }
+.ros .nm { flex: 1; }
+.tag { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; border-radius: 6px; padding: 1px 6px; }
+.tag.app { color: var(--accent); border: 1px solid rgba(201,155,255,.5); }
+.tag.room { color: var(--dim); border: 1px solid var(--line-strong); }
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.tile { background: var(--surface-2); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 4px; }
+.tile b { font-family: var(--display); font-size: 34px; font-weight: 400; line-height: 1; font-variant-numeric: tabular-nums; }
+.tile span { font-size: 13px; color: var(--muted); }
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { color: var(--dim); font-weight: 500; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+.yes { color: var(--ok); }
+.no { color: var(--dim); }
+.display { position: fixed; inset: 0; z-index: 20; background: #0b0614; display: flex; flex-direction: column; padding: calc(24px + env(safe-area-inset-top, 0px)) max(24px, env(safe-area-inset-right, 0px)) calc(24px + env(safe-area-inset-bottom, 0px)) max(24px, env(safe-area-inset-left, 0px)); gap: 20px; }
+.display.inline { position: static; border-radius: 18px; border: 1px solid rgba(201,155,255,.35); padding: 18px; min-height: 360px; }
+.display .big { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 22px; max-width: 900px; margin: 0 auto; }
+.display .big h2 { font-family: var(--display); font-size: clamp(36px, 6vw, 72px); line-height: 1.05; }
+.display .big q { font-family: var(--display); font-style: italic; font-size: clamp(24px, 3.4vw, 40px); line-height: 1.3; }
+.display .claps { font-size: 18px; color: var(--warm); font-variant-numeric: tabular-nums; }
+.display.inline .big h2 { font-size: 38px; }
+.display.inline .big q { font-size: 24px; }
+.copybox { width: 100%; min-height: 160px; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+/* ---------- constants ---------- */
+const STAGES = [
+  { name: "Pregame", app: true },
+  { name: "Welcome", rest: ["You have a place here", "Put your phone away. We'll call you back when it's time."] },
+  { name: "Opening", rest: ["Phones down", "The host is opening the room."] },
+  { name: "The Witness", app: true },
+  { name: "Portrait session", app: true },
+  { name: "The Table", rest: ["Enjoy the table", "Phones away. No work talk tonight."] },
+  { name: "Real Talk", rest: ["Phones down", "The room has you."] },
+  { name: "Rolodex", rest: ["Rolodex", "Share what you can offer and what you need, in person."] },
+  { name: "Closing", rest: ["You are outstanding", "Thank you for being here at full size."] },
+  { name: "After the event", app: true }
+];
+const FIELDS = ["Tech", "Social impact", "Policy", "Creative", "Community organizing", "Other"];
+const WEATHER = ["Clear skies", "Warm front", "Foggy", "Storm passing", "First sun"];
+const WANTS = ["To be celebrated", "To be heard", "To find collaborators", "To rest"];
+const WORDS = ["Joy", "Boldness", "Freedom", "Ease"];
+const RULES = [
+  "Celebrate without comparison. Her win takes nothing from yours.",
+  "No disclaimers or forced modesty when you name a win.",
+  "No unsolicited advice or fixing.",
+  "No pitches during the meal.",
+  "What is shared here stays here.",
+  "You can always pass."
+];
+const QUESTIONS = [
+  "When have you felt another woman's success meant less room for you?",
+  "What did you learn about competition that you want to unlearn?"
+];
+const PROMPT = "What have you done that you're proud of but rarely celebrate?";
+const FOLLOW = "What did it take?";
+const PEER_PREFIX = "undiminished-room-";
+const PEER_SRC = ["https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js", "https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"];
+const QR_SRC = ["https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"];
+
+/* ---------- helpers ---------- */
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const ALPH = "abcdefghjkmnpqrstuvwxyz23456789";
+const uid = (n = 8) => Array.from(crypto.getRandomValues(new Uint8Array(n)), b => ALPH[b % ALPH.length]).join("");
+const CODE_CHARS = "ABCDEFGHJKMNPQRSTUVWXYZ";
+const newCode = () => Array.from(crypto.getRandomValues(new Uint8Array(4)), b => CODE_CHARS[b % CODE_CHARS.length]).join("");
+const str = (v, max) => (typeof v === "string" ? v.trim().slice(0, max) : "");
+const oneOf = (v, list) => (list.includes(v) ? v : "");
+const fmt = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+const clock = t => new Date(t).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+const listNames = arr => arr.length <= 1 ? (arr[0] || "") : arr.slice(0, -1).join(", ") + " and " + arr[arr.length - 1];
+const store = {
+  get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+  del(k) { try { localStorage.removeItem(k); } catch (e) {} }
+};
+const vibe = p => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
+function loadScript(srcs) {
+  return new Promise((resolve, reject) => {
+    const tryOne = i => {
+      if (i >= srcs.length) return reject(new Error("load failed"));
+      const s = document.createElement("script");
+      s.src = srcs[i];
+      s.onload = () => resolve();
+      s.onerror = () => { s.remove(); tryOne(i + 1); };
+      document.head.appendChild(s);
+    };
+    tryOne(0);
+  });
+}
+function keepFocus(root, fn) {
+  const a = document.activeElement;
+  const id = a && root.contains(a) ? a.id : null;
+  let s = null, e = null;
+  try { if (id) { s = a.selectionStart; e = a.selectionEnd; } } catch (x) {}
+  fn();
+  if (id) {
+    const n = root.querySelector("#" + CSS.escape(id));
+    if (n) { n.focus({ preventScroll: true }); try { if (s !== null) n.setSelectionRange(s, e); } catch (x) {} }
+  }
+}
+const Sound = {
+  ctx: null, on: false,
+  enable() { try { this.ctx = this.ctx || new (window.AudioContext || window.webkitAudioContext)(); this.ctx.resume(); this.on = true; } catch (e) { this.on = false; } },
+  tone(f, dur = 1.6, vol = .15, type = "sine") {
+    if (!this.on || !this.ctx) return;
+    const a = this.ctx, o = a.createOscillator(), g = a.createGain();
+    o.type = type; o.frequency.value = f;
+    g.gain.setValueAtTime(.0001, a.currentTime);
+    g.gain.exponentialRampToValueAtTime(vol, a.currentTime + .02);
+    g.gain.exponentialRampToValueAtTime(.0001, a.currentTime + dur);
+    o.connect(g).connect(a.destination); o.start(); o.stop(a.currentTime + dur + .05);
+  },
+  chime() { const n = [523.25, 587.33, 659.25, 783.99, 880]; this.tone(n[Math.floor(Math.random() * n.length)]); },
+  alert() { this.tone(880, .25, .2, "triangle"); setTimeout(() => this.tone(660, .35, .2, "triangle"), 260); }
+};
+/* countdowns tick locally from the time each view arrived */
+setInterval(() => {
+  document.querySelectorAll("[data-end]").forEach(el => {
+    const left = Math.max(0, +el.dataset.end - Date.now());
+    if (el.dataset.kind === "bar") el.style.width = (100 * left / (+el.dataset.total || 1)) + "%";
+    else el.textContent = fmt(Math.ceil(left / 1000));
+  });
+}, 250);
+
+/* ---------- host engine: the single source of truth ---------- */
+function createHost({ code, eventName = "Evening salon", saved = null, persistKey = null }) {
+  const S = saved || {
+    code, eventName, turnSec: 180, stage: 0, guests: {}, order: [], groups: [], sos: [], sosCount: 0,
+    portraitsReady: false, nudgeSent: false, display: { on: false, idx: 0, applause: 0 }, ended: false
+  };
+  const H = { S, online: {}, send() {}, onChange() {}, onAlert() {}, onApplause() {} };
+  const G = id => S.guests[id];
+  const name = id => (G(id) && G(id).name) || "Guest";
+  const groupOf = id => S.groups.find(g => g.members.includes(id));
+  const inGuests = () => S.order.map(G).filter(g => g && g.status === "in");
+  H.G = G; H.name = name; H.groupOf = groupOf;
+
+  function commit() {
+    if (persistKey) store.set(persistKey, S);
+    H.onChange();
+    S.order.forEach(id => H.send(id, viewFor(id)));
+  }
+  H.sendOne = id => H.send(id, viewFor(id));
+  H.setOnline = (id, on) => { H.online[id] = on; H.onChange(); };
+
+  function nextTurn(g) {
+    g.turn++;
+    if (g.turn >= g.members.length) { g.phase = "permission"; g.endsAt = 0; }
+    else g.endsAt = Date.now() + S.turnSec * 1000;
+  }
+  function checkGroupDone(g) {
+    if (g.phase === "brag" && g.brags.length && g.brags.every(b => b.status === "approved" || b.status === "private")) g.phase = "done";
+  }
+  function suggestPairs() {
+    const ids = S.order.filter(id => G(id).status === "in" && !G(id).deleted);
+    const score = (a, b) => {
+      const A = G(a).answers || {}, B = G(b).answers || {};
+      let s = 0;
+      if (A.field && B.field && A.field !== B.field) s += 2;
+      if (A.want && B.want && A.want !== B.want) s += 1;
+      return s;
+    };
+    const pool = ids.slice(), groups = [];
+    while (pool.length > 3 || pool.length === 2) {
+      const a = pool.shift();
+      let best = 0, bs = -1;
+      pool.forEach((b, i) => { const s = score(a, b); if (s > bs) { bs = s; best = i; } });
+      groups.push([a, pool.splice(best, 1)[0]]);
+    }
+    if (pool.length === 3) groups.push(pool.splice(0));
+    if (pool.length === 1) { if (groups.length) groups[groups.length - 1].push(pool[0]); else groups.push([pool[0]]); }
+    S.groups = groups.map(m => ({ id: uid(5), members: m, phase: "reveal", turn: 0, endsAt: 0, brags: [] }));
+  }
+  const pairsLocked = () => S.groups.some(g => g.phase !== "reveal");
+
+  /* guest actions arrive here; every field is checked because guest messages are untrusted */
+  H.act = (id, a) => {
+    if (!a || typeof a !== "object" || S.ended) return;
+    let g = G(id);
+    if (a.type === "join") {
+      const nm = str(a.name, 24);
+      if (!nm) return;
+      if (!g) { S.guests[id] = g = { id, name: nm, status: "pending", answers: null, contact: "", onboarded: false, word: "", perms: { room: false, keep: false, use: false }, permsSaved: false, connect: {}, nudge: {}, deleted: false }; S.order.push(id); }
+      else if (g.status === "pending") g.name = nm;
+      return commit();
+    }
+    if (!g || g.status !== "in") return;
+    const gr = groupOf(id);
+    switch (a.type) {
+      case "onboard": {
+        const x = a.answers || {};
+        g.answers = { field: oneOf(x.field, FIELDS), weather: oneOf(x.weather, WEATHER), want: oneOf(x.want, WANTS), noticed: str(x.noticed, 200) };
+        g.contact = str(a.contact, 80);
+        g.onboarded = true;
+        break;
+      }
+      case "sos": S.sos.push({ id: uid(6), gid: id, at: Date.now(), handled: false }); S.sosCount++; H.onAlert(); break;
+      case "sosCancel": S.sos = S.sos.filter(s => !(s.gid === id && !s.handled)); break;
+      case "ready": if (S.stage === 3 && gr && gr.phase === "reveal") { gr.phase = "turns"; gr.turn = 0; gr.endsAt = Date.now() + S.turnSec * 1000; } break;
+      case "done": if (gr && gr.phase === "turns" && gr.members[gr.turn] === id) nextTurn(gr); break;
+      case "agreed":
+        if (gr && gr.phase === "permission") {
+          const m = gr.members;
+          gr.brags = m.length > 1 ? m.map((f, i) => ({ from: f, to: m[(i + 1) % m.length], text: "", status: "writing", note: "" })) : [];
+          gr.phase = m.length > 1 ? "brag" : "done";
+        }
+        break;
+      case "bragSubmit": {
+        const b = gr && gr.brags.find(b => b.from === id);
+        const t = str(a.text, 280);
+        if (b && t && (b.status === "writing" || b.status === "change")) { b.text = t; b.status = "pending"; }
+        break;
+      }
+      case "bragDecide": {
+        const b = gr && gr.brags.find(b => b.to === id && b.status === "pending");
+        if (!b) break;
+        if (a.decision === "approved" || a.decision === "private") b.status = a.decision;
+        else if (a.decision === "change") { b.status = "change"; b.note = str(a.note, 140); }
+        checkGroupDone(gr);
+        break;
+      }
+      case "portrait": {
+        const p = a.perms || {};
+        g.word = str(a.word, 20);
+        g.perms = { room: p.room === true, keep: p.keep === true, use: p.use === true };
+        g.permsSaved = true;
+        break;
+      }
+      case "applause": if (S.display.on && S.stage === 4) { S.display.applause++; H.onApplause(); } break;
+      case "connect": if (gr && gr.members.includes(a.to) && a.to !== id) g.connect[a.to] = a.yes === true; break;
+      case "nudge": if (S.nudgeSent && gr && gr.members.includes(a.to) && a.to !== id) g.nudge[a.to] = a.yes === true; break;
+      case "deleteMe":
+        g.deleted = true; g.name = "A guest"; g.answers = null; g.contact = ""; g.word = ""; g.connect = {}; g.nudge = {};
+        S.groups.forEach(x => x.brags.forEach(b => { if (b.from === id || b.to === id) { b.text = ""; if (b.status !== "approved") b.status = "private"; } }));
+        break;
+      default: return;
+    }
+    commit();
+  };
+
+  /* host actions */
+  H.hostAct = a => {
+    switch (a.type) {
+      case "approve": if (G(a.id) && G(a.id).status === "pending") G(a.id).status = "in"; break;
+      case "approveAll": S.order.forEach(id => { if (G(id).status === "pending") G(id).status = "in"; }); break;
+      case "remove": if (G(a.id)) { G(a.id).status = "removed"; S.groups.forEach(g => { g.members = g.members.filter(m => m !== a.id); }); S.groups = S.groups.filter(g => g.members.length); } break;
+      case "eventName": S.eventName = str(a.value, 60) || "Evening salon"; break;
+      case "turnSec": S.turnSec = Math.min(300, Math.max(30, +a.value || 180)); break;
+      case "suggest": if (!pairsLocked()) suggestPairs(); break;
+      case "swap": {
+        if (pairsLocked() || a.a === a.b) break;
+        const ga = groupOf(a.a), gb = groupOf(a.b);
+        if (!ga || !gb || ga === gb) break;
+        ga.members[ga.members.indexOf(a.a)] = a.b;
+        gb.members[gb.members.indexOf(a.b)] = a.a;
+        break;
+      }
+      case "stage": {
+        const to = Math.max(0, Math.min(STAGES.length - 1, a.to));
+        if (to >= 3 && !S.groups.length) suggestPairs();
+        S.stage = to;
+        if (to !== 4 && S.display.on) S.display.on = false;
+        break;
+      }
+      case "sosHandle": { const s = S.sos.find(s => s.id === a.id); if (s) { s.handled = true; s.handledAt = Date.now(); } break; }
+      case "display": S.display.on = !!a.on; if (a.on) S.display.applause = 0; break;
+      case "displayIdx": S.display.idx = Math.max(0, a.idx); S.display.applause = 0; break;
+      case "portraitsReady": S.portraitsReady = true; break;
+      case "nudge": S.nudgeSent = true; break;
+      case "end": S.ended = true; break;
+      default: return;
+    }
+    commit();
+  };
+
+  /* timers expire on the host so every phone agrees */
+  setInterval(() => {
+    let changed = false;
+    S.groups.forEach(g => { if (g.phase === "turns" && g.endsAt && Date.now() >= g.endsAt) { nextTurn(g); changed = true; } });
+    if (changed) commit();
+  }, 500);
+
+  /* what one guest is allowed to see */
+  function viewFor(id) {
+    const g = G(id);
+    const base = { code: S.code, eventName: S.eventName, stage: S.stage, ended: S.ended, turnSec: S.turnSec };
+    if (!g) return { ...base, status: "unknown" };
+    const me = { id, name: g.name, onboarded: g.onboarded, word: g.word, perms: g.perms, permsSaved: g.permsSaved, deleted: g.deleted };
+    const last = S.sos.filter(s => s.gid === id).slice(-1)[0];
+    const sosState = !last ? "none" : !last.handled ? "sent" : (Date.now() - last.handledAt < 20000 ? "handled" : "none");
+    const gr = groupOf(id);
+    let group = null;
+    if (gr && S.stage >= 3) {
+      const out = gr.brags.find(b => b.from === id);
+      group = {
+        phase: gr.phase,
+        partners: gr.members.filter(m => m !== id).map(m => ({ id: m, name: name(m) })),
+        speakerId: gr.phase === "turns" ? gr.members[gr.turn] : null,
+        speakerName: gr.phase === "turns" ? name(gr.members[gr.turn]) : "",
+        turn: gr.turn, turnCount: gr.members.length,
+        remainingMs: gr.phase === "turns" ? Math.max(0, gr.endsAt - Date.now()) : 0,
+        out: out ? { toName: name(out.to), text: out.text, status: out.status, note: out.note } : null,
+        inn: gr.brags.filter(b => b.to === id && (b.status === "pending" || b.status === "approved" || b.status === "private")).map(b => ({ fromName: name(b.from), text: b.text, status: b.status }))
+      };
+    }
+    let after = null;
+    if (S.stage === 9) {
+      const partners = gr ? gr.members.filter(m => m !== id) : [];
+      after = {
+        portraitsReady: S.portraitsReady, keep: g.perms.keep, word: g.word, nudgeSent: S.nudgeSent,
+        cards: gr ? gr.brags.filter(b => b.to === id && b.status === "approved" && b.text).map(b => ({ fromName: name(b.from), text: b.text })) : [],
+        connections: partners.map(p => {
+          const P = G(p), mine = !!g.connect[p], theirs = !!(P && P.connect[id]);
+          return { id: p, name: name(p), mine, mutual: mine && theirs, contact: mine && theirs && P ? P.contact : "", nudge: p in g.nudge ? g.nudge[p] : null };
+        })
+      };
+    }
+    return { ...base, status: g.status, me, sosState, group, after, applause: S.display.on && S.stage === 4 };
+  }
+
+  H.totals = () => {
+    const ins = inGuests();
+    const brags = S.groups.flatMap(g => g.brags);
+    const seen = new Set();
+    let mutual = 0, followYes = 0;
+    ins.forEach(a => Object.keys(a.connect).forEach(b => {
+      if (a.connect[b] && G(b) && G(b).connect[a.id]) { const k = [a.id, b].sort().join(); if (!seen.has(k)) { seen.add(k); mutual++; } }
+    }));
+    ins.forEach(a => Object.values(a.nudge).forEach(v => { if (v === true) followYes++; }));
+    return {
+      attended: ins.length, onboarded: ins.filter(g => g.onboarded).length,
+      groups: S.groups.length, groupsDone: S.groups.filter(g => ["permission", "brag", "done"].includes(g.phase)).length,
+      bragsApproved: brags.filter(b => b.status === "approved").length,
+      portraitsKeep: ins.filter(g => g.perms.keep).length, mutual, followYes, sos: S.sosCount
+    };
+  };
+  H.activity = id => {
+    const g = G(id);
+    if (!g) return "";
+    if (g.status === "pending") return "Waiting to come in";
+    if (g.status === "removed") return "Removed";
+    if (g.deleted) return "Deleted her data";
+    const st = S.stage, gr = groupOf(id);
+    if (st <= 2) return g.onboarded ? "Onboarded" : "Onboarding";
+    if (st === 3) {
+      if (!gr) return "Not paired yet";
+      if (gr.phase === "reveal") return "Finding her partner";
+      if (gr.phase === "turns") return gr.members[gr.turn] === id ? "Speaking" : "Listening";
+      if (gr.phase === "permission") return "Agreeing what to share";
+      const out = gr.brags.find(b => b.from === id), inn = gr.brags.filter(b => b.to === id);
+      if (out && (out.status === "writing" || out.status === "change")) return "Writing a brag";
+      if (inn.some(b => b.status === "pending")) return "Reviewing a brag";
+      return "Brag done";
+    }
+    if (st === 4) return g.permsSaved ? "Portrait word saved" : "Choosing a portrait word";
+    if (st === 9) return "After the event";
+    return "Phone resting";
+  };
+  H.approvedBrags = () => S.groups.flatMap(g => g.brags.filter(b => b.status === "approved" && b.text).map(b => ({ to: name(b.to), from: name(b.from), text: b.text })));
+  return H;
+}
+
+/* ---------- host dashboard ---------- */
+function mountHost(root, host, opts) {
+  const S = host.S;
+  const U = { tab: "before", swapSel: null, confirmEnd: false, net: opts.live ? "Starting the room…" : "", copyText: "", copied: "" };
+  host.onChange = () => render();
+  host.onAlert = () => { Sound.alert(); vibe([60, 40, 60]); };
+  host.onApplause = () => Sound.chime();
+  host.setNet = t => { U.net = t; render(); };
+  let qrReady = false, qrFailed = false;
+  loadScript(QR_SRC).then(() => { qrReady = true; render(); }).catch(() => { qrFailed = true; render(); });
+  const joinUrl = () => location.origin + location.pathname + "?join=" + S.code + (typeof keepBroker === "function" ? keepBroker() : "");
+  const tabFor = st => st === 0 ? "before" : st === 9 ? "after" : "during";
+
+  function guestRows() {
+    const ids = S.order.filter(id => host.G(id).status !== "removed");
+    if (!ids.length) return `<p class="muted small">No guests yet. Share the room code or QR code.</p>`;
+    return `<div class="list">${ids.map(id => {
+      const g = host.G(id), a = g.answers;
+      const online = opts.live ? (host.online[id] ? `<span class="pill ok">Online</span>` : `<span class="pill">Offline</span>`) : "";
+      const status = g.status === "pending" ? `<span class="pill warm">Wants to come in</span>` : g.onboarded ? `<span class="pill ok">Onboarded</span>` : `<span class="pill">Onboarding</span>`;
+      const actions = g.status === "pending" ? `<button class="btn sm" data-act="approve" data-id="${id}">Let in</button><button class="btn ghost sm" data-act="remove" data-id="${id}">Remove</button>` : "";
+      const info = a ? `${esc(a.field || "No field given")} · ${esc(a.weather || "no weather")} · wants ${esc((a.want || "nothing chosen").toLowerCase())}${a.noticed ? `<br><span class="dim">Welcome card note: wishes people noticed ${esc(a.noticed)}</span>` : ""}` : "";
+      return `<div class="li"><span class="who">${esc(g.name)}</span>${status}${online}<span class="grow">${info}</span>${actions}</div>`;
+    }).join("")}</div>`;
+  }
+  function pairing() {
+    const locked = S.groups.some(g => g.phase !== "reveal");
+    const unpaired = S.order.filter(id => host.G(id).status === "in" && !host.G(id).deleted && !host.groupOf(id));
+    const groups = S.groups.map((g, i) => `<div class="group"><span class="small dim">${g.members.length === 3 ? "Trio" : g.members.length === 1 ? "Solo" : "Pair"} ${i + 1}</span>${g.members.map(m => `<button class="member" data-act="swap-pick" data-id="${m}" aria-pressed="${U.swapSel === m}" ${locked ? "disabled" : ""}>${esc(host.name(m))}</button>`).join("")}</div>`).join("");
+    return `<div class="row"><button class="btn sm" data-act="suggest" ${locked ? "disabled" : ""}>${S.groups.length ? "Suggest again" : "Suggest pairings"}</button><span class="small muted grow">${locked ? "The Witness has started, so pairs are set." : S.groups.length ? "Tap one guest, then another in a different group, to swap them. Pairs are revealed when you start The Witness." : "Pairs mix fields and match what each guest wants more of. Three guests make one trio."}</span></div>
+      ${S.groups.length ? `<div class="groups">${groups}</div>` : ""}
+      ${unpaired.length && S.groups.length ? `<p class="small" style="color:var(--warm)">Not paired yet: ${esc(listNames(unpaired.map(host.name)))}. Suggest again to include them.</p>` : ""}`;
+  }
+  function before() {
+    return `<section class="h-card"><h3>Room</h3>
+        <div class="row" style="align-items:flex-start;gap:16px">
+          <div class="qr" id="qr" aria-label="QR code for the join link">${qrReady ? "" : `<span class="small" style="color:#120a1f;text-align:center;padding:8px">${qrFailed ? "QR code needs an internet connection. Share the room code instead." : "QR code loading"}</span>`}</div>
+          <div class="stack grow" style="gap:10px;min-width:200px">
+            <div><p class="small muted">Room code</p><p class="room-code">${S.code}</p></div>
+            <p class="small muted" style="word-break:break-all">${opts.live ? "Guests scan the QR code or open " + esc(joinUrl()) : "In demo mode the guests are the three phones on this screen."}</p>
+          </div>
+        </div>
+        <div class="row">
+          <label class="grow" for="h-event"><span class="small muted">Event name</span><input id="h-event" type="text" maxlength="60" value="${esc(S.eventName)}"></label>
+          <label for="h-turn" style="min-width:150px"><span class="small muted">Witness turn length</span>
+            <select id="h-turn">${[60, 120, 180, 240, 300].map(s => `<option value="${s}" ${S.turnSec === s ? "selected" : ""}>${s / 60} minute${s > 60 ? "s" : ""}</option>`).join("")}</select></label>
+        </div>
+      </section>
+      <section class="h-card"><div class="row"><h3 class="grow">Guests · ${S.order.filter(id => host.G(id).status === "in").length} in</h3>${S.order.some(id => host.G(id).status === "pending") ? `<button class="btn sm" data-act="approveAll">Let everyone in</button>` : ""}</div>${guestRows()}</section>
+      <section class="h-card"><h3>Pairing for The Witness</h3>${pairing()}</section>`;
+  }
+  function during() {
+    const ros = STAGES.map((s, i) => `<button data-act="stage-to" data-to="${i}" ${S.stage === i ? 'aria-current="step"' : ""}><span class="num">${i}</span><span class="nm">${esc(s.name)}</span><span class="tag ${s.app ? "app" : "room"}">${s.app ? "App" : "Room"}</span></button>`).join("");
+    const roster = S.order.filter(id => host.G(id).status === "in").map(id => `<div class="li"><span class="who">${esc(host.name(id))}</span><span class="grow">${esc(host.activity(id))}</span>${opts.live ? (host.online[id] ? `<span class="pill ok">Online</span>` : `<span class="pill">Offline</span>`) : ""}</div>`).join("") || `<p class="muted small">No guests in the room yet.</p>`;
+    const phaseText = g => ({ reveal: "Finding each other", turns: `Turn ${g.turn + 1} of ${g.members.length}: ${host.name(g.members[g.turn])} speaking`, permission: "Agreeing what can be shared", brag: "Writing and approving brags", done: "Done" }[g.phase]);
+    const witness = S.stage >= 3 && S.groups.length ? `<section class="h-card"><h3>The Witness</h3><div class="list">${S.groups.map(g => `<div class="li"><span class="who">${esc(listNames(g.members.map(host.name)))}</span><span class="grow">${esc(phaseText(g))}</span>${g.phase === "done" ? `<span class="pill ok">Done</span>` : ""}</div>`).join("")}</div>
+      <div class="row"><button class="btn quiet sm" data-act="display-open" ${host.approvedBrags().length ? "" : "disabled"}>Open room display for Brag on Her</button><span class="small muted grow">${host.approvedBrags().length} approved brag${host.approvedBrags().length === 1 ? "" : "s"}. Only approved brags can be shown. Guests can send applause during the portrait session.</span></div></section>` : "";
+    const checklist = S.stage >= 4 ? `<section class="h-card"><h3>Photographer checklist</h3><div class="table-wrap"><table><thead><tr><th>Guest</th><th>Word</th><th>Show tonight</th><th>Keep and send</th><th>Use in materials</th></tr></thead><tbody>${S.order.filter(id => host.G(id).status === "in").map(id => { const g = host.G(id); const yn = v => v ? `<span class="yes">Yes</span>` : `<span class="no">No</span>`; return `<tr><td>${esc(g.name)}</td><td>${g.permsSaved ? esc(g.word || "None") : `<span class="no">Not chosen</span>`}</td><td>${yn(g.perms.room)}</td><td>${yn(g.perms.keep)}</td><td>${yn(g.perms.use)}</td></tr>`; }).join("")}</tbody></table></div><p class="small muted">Permissions are off unless the guest turned them on.</p></section>` : "";
+    return `<section class="h-card"><h3>Guests right now</h3><div class="list">${roster}</div></section>${witness}${checklist}
+      <section class="h-card"><h3>Run of show</h3><div class="ros">${ros}</div><p class="small muted">Tap a stage to move every phone there. App stages use the phone; room stages show a resting screen.</p></section>`;
+  }
+  function after() {
+    const T = host.totals();
+    const tile = (n, l) => `<div class="tile"><b>${n}</b><span>${l}</span></div>`;
+    return `<section class="h-card"><h3>Sponsor totals</h3>
+        <div class="tiles">${tile(T.attended, "Guests attended")}${tile(T.onboarded, "Finished onboarding")}${tile(`${T.groupsDone}/${T.groups}`, "Pairs or trios that finished their turns")}${tile(T.bragsApproved, "Brags approved")}${tile(T.portraitsKeep, "Kept their portraits")}${tile(T.mutual, "Mutual connections")}${tile(T.followYes, "Follow-ups answered yes")}${tile(T.sos, "SOS signals")}</div>
+        <p class="small muted">Totals only. No names, answers or brag text leave this screen.</p>
+        <div class="row"><button class="btn quiet sm" data-act="copy">Copy summary</button>${U.copied ? `<span class="small" style="color:var(--ok)">${esc(U.copied)}</span>` : ""}</div>
+        ${U.copyText ? `<textarea class="copybox" id="copybox" readonly>${esc(U.copyText)}</textarea>` : ""}
+      </section>
+      <section class="h-card"><h3>Follow-through</h3>
+        <div class="row"><button class="btn sm" data-act="portraits" ${S.portraitsReady ? "disabled" : ""}>${S.portraitsReady ? "Portraits marked ready" : "Mark portraits ready"}</button><span class="small muted grow">Guests who chose to keep their photos see them in the app.</span></div>
+        <div class="row"><button class="btn sm" data-act="nudge" ${S.nudgeSent ? "disabled" : ""}>${S.nudgeSent ? "Follow-up sent" : "Send 4-week follow-up"}</button><span class="small muted grow">Asks each guest: "Do you still wish to maintain this connection?"</span></div>
+      </section>
+      <section class="h-card"><h3>Close the room</h3>
+        ${U.confirmEnd ? `<p>End the room? Guest phones will show "Room closed", and this device clears the event.</p><div class="row"><button class="btn sm" data-act="end-yes">End room</button><button class="btn ghost sm" data-act="end-no">Cancel</button></div>`
+          : `<div class="row"><button class="btn ghost sm" data-act="end">End room</button><span class="small muted grow">Do this after you've copied the summary.</span></div>`}
+      </section>`;
+  }
+  function displayOverlay() {
+    const list = host.approvedBrags();
+    if (!S.display.on || !list.length) return "";
+    const i = Math.min(S.display.idx, list.length - 1), b = list[i];
+    return `<div class="display ${opts.live ? "" : "inline"}" role="dialog" aria-label="Room display"><div class="row"><span class="eyebrow grow">Brag on Her · ${i + 1} of ${list.length}</span><button class="btn ghost sm" data-act="display-close">Close display</button></div>
+      <div class="big"><h2>Brag on ${esc(b.to)}</h2><q>${esc(b.text)}</q><p class="muted">From ${esc(b.from)}</p><p class="claps">${S.display.applause} applause from the room</p></div>
+      <div class="row" style="justify-content:center"><button class="btn ghost" data-act="display-prev" ${i === 0 ? "disabled" : ""}>Previous</button><button class="btn" data-act="display-next" ${i >= list.length - 1 ? "disabled" : ""}>Next brag</button></div></div>`;
+  }
+  function render() {
+    if (S.ended) {
+      root.innerHTML = `<div class="h"><div class="h-body"><div class="stack" style="padding-block:40px"><h1 class="h-title">Room closed</h1><p class="muted">Guest phones now show that the room is closed. Thank you for hosting.</p>${opts.onRestart ? `<button class="btn" data-act="restart" style="align-self:flex-start">Start over</button>` : ""}</div></div></div>`;
+      return;
+    }
+    const alerts = S.sos.filter(s => !s.handled).map(s => `<div class="alert" role="alert"><b>${esc(host.name(s.gid))} needs a host</b><span class="small muted grow">Sent ${clock(s.at)}. Go to her quietly.</span><button class="btn sm" data-act="sos-handle" data-id="${s.id}">I've got it</button></div>`).join("");
+    const nextI = Math.min(STAGES.length - 1, S.stage + 1);
+    keepFocus(root, () => {
+      root.innerHTML = `<div class="h">
+        <header class="h-head"><div><p class="eyebrow">${opts.live ? "Live room" : "Demo room"} · code <span class="code">${S.code}</span></p><h1 class="h-title">${esc(S.eventName)}</h1></div>
+          <button class="btn ghost sm" data-act="sound">${Sound.on ? "Sound on" : "Turn on sound"}</button></header>
+        ${U.net ? `<p class="h-net">${esc(U.net)}</p>` : ""}
+        ${alerts ? `<div class="alerts">${alerts}</div>` : ""}
+        <div class="h-stage"><div class="now"><span class="small muted">Room is at stage ${S.stage}</span><b>${esc(STAGES[S.stage].name)}</b></div>
+          <button class="btn ghost sm" data-act="stage-back" ${S.stage === 0 ? "disabled" : ""}>Back</button>
+          <button class="btn sm" data-act="stage-next" ${S.stage === STAGES.length - 1 ? "disabled" : ""}>Move room to ${esc(STAGES[nextI].name)}</button></div>
+        <div class="h-tabs" role="tablist">${["before", "during", "after"].map(t => `<button role="tab" data-act="tab" data-tab="${t}" aria-selected="${U.tab === t}">${t === "before" ? "Before" : t === "during" ? "During" : "After"}</button>`).join("")}</div>
+        <div class="h-body">${opts.live ? "" : displayOverlay()}${U.tab === "before" ? before() : U.tab === "during" ? during() : after()}</div>
+        ${opts.live ? displayOverlay() : ""}
+      </div>`;
+    });
+    const qr = root.querySelector("#qr");
+    if (qr && qrReady && window.QRCode) { try { new QRCode(qr, { text: joinUrl(), width: 148, height: 148, colorDark: "#120a1f", colorLight: "#ffffff" }); } catch (e) {} }
+  }
+  root.addEventListener("click", e => {
+    const t = e.target.closest("[data-act]");
+    if (!t || !root.contains(t) || t.disabled) return;
+    const act = t.dataset.act, id = t.dataset.id;
+    switch (act) {
+      case "tab": U.tab = t.dataset.tab; U.copyText = ""; render(); break;
+      case "sound": Sound.enable(); Sound.chime(); render(); break;
+      case "approve": host.hostAct({ type: "approve", id }); break;
+      case "approveAll": host.hostAct({ type: "approveAll" }); break;
+      case "remove": host.hostAct({ type: "remove", id }); break;
+      case "suggest": U.swapSel = null; host.hostAct({ type: "suggest" }); break;
+      case "swap-pick":
+        if (!U.swapSel) { U.swapSel = id; render(); }
+        else if (U.swapSel === id) { U.swapSel = null; render(); }
+        else { const a = U.swapSel; U.swapSel = null; host.hostAct({ type: "swap", a, b: id }); }
+        break;
+      case "stage-back": host.hostAct({ type: "stage", to: S.stage - 1 }); U.tab = tabFor(S.stage); render(); break;
+      case "stage-next": host.hostAct({ type: "stage", to: S.stage + 1 }); U.tab = tabFor(S.stage); render(); break;
+      case "stage-to": host.hostAct({ type: "stage", to: +t.dataset.to }); break;
+      case "sos-handle": host.hostAct({ type: "sosHandle", id }); break;
+      case "display-open": if (S.stage !== 4) host.hostAct({ type: "stage", to: 4 }); host.hostAct({ type: "display", on: true }); break;
+      case "display-close": host.hostAct({ type: "display", on: false }); break;
+      case "display-next": host.hostAct({ type: "displayIdx", idx: S.display.idx + 1 }); break;
+      case "display-prev": host.hostAct({ type: "displayIdx", idx: S.display.idx - 1 }); break;
+      case "portraits": host.hostAct({ type: "portraitsReady" }); break;
+      case "nudge": host.hostAct({ type: "nudge" }); break;
+      case "end": U.confirmEnd = true; render(); break;
+      case "end-no": U.confirmEnd = false; render(); break;
+      case "end-yes": host.hostAct({ type: "end" }); if (opts.onEnd) opts.onEnd(); break;
+      case "restart": opts.onRestart && opts.onRestart(); break;
+      case "copy": {
+        const T = host.totals();
+        const text = `${S.eventName}, room ${S.code}\nGuests attended: ${T.attended}\nFinished onboarding: ${T.onboarded}\nPairs or trios that finished their turns: ${T.groupsDone} of ${T.groups}\nBrags approved: ${T.bragsApproved}\nKept their portraits: ${T.portraitsKeep}\nMutual connections: ${T.mutual}\nFollow-ups answered yes: ${T.followYes}\nSOS signals: ${T.sos}`;
+        const fallback = () => { U.copyText = text; U.copied = "Copy is blocked here. Select the text below."; render(); const b = root.querySelector("#copybox"); if (b) b.select(); };
+        try { navigator.clipboard.writeText(text).then(() => { U.copied = "Copied."; U.copyText = ""; render(); }, fallback); } catch (err) { fallback(); }
+        break;
+      }
+    }
+  });
+  root.addEventListener("change", e => {
+    if (e.target.id === "h-event") host.hostAct({ type: "eventName", value: e.target.value });
+    if (e.target.id === "h-turn") host.hostAct({ type: "turnSec", value: e.target.value });
+  });
+  U.tab = tabFor(S.stage);
+  render();
+  return { render };
+}
+
+/* ---------- guest app ---------- */
+function createGuestApp(root, cfg) {
+  const L = {
+    view: null, recvAt: 0, step: 0, consent: false,
+    ans: { field: "", weather: "", want: "", noticed: "" }, contact: "",
+    name: cfg.presetName || store.get("udm-name") || "",
+    brag: "", note: "", changing: false, word: "", ownWord: "", perms: { room: false, keep: false, use: false }, dirty: false,
+    sosConfirm: false, showRules: false, showQ: false, net: "", confirmDelete: false, follow: false
+  };
+  const app = { emit() {}, receive, setNet(t) { L.net = t; render(); }, render };
+
+  function receive(v) {
+    const prev = L.view;
+    L.view = v; L.recvAt = Date.now();
+    if (prev && prev.stage !== v.stage) vibe(30);
+    if (v.me && !L.dirty) { L.perms = { ...v.me.perms }; if (v.me.word) { L.word = WORDS.includes(v.me.word) ? v.me.word : ""; L.ownWord = WORDS.includes(v.me.word) ? "" : v.me.word; } }
+    if (v.group && v.group.out && v.group.out.status === "pending") { L.brag = ""; L.changing = false; }
+    render();
+  }
+  const rest = (title, line, extra = "") => `<section class="rest"><div class="orb" aria-hidden="true"></div><h2>${esc(title)}</h2><p>${esc(line)}</p>${extra}</section>`;
+
+  function joinScreen() {
+    return `<section class="stack"><div class="orb" aria-hidden="true"></div><h2>${esc(L.view.eventName || "Tonight's room")}</h2>
+      <p class="muted">You take up full space here. No account and no password, just the name you want to be known by tonight.</p>
+      ${cfg.askCode ? `<label for="g-code-${cfg.id}"><span class="small muted">Room code</span><input id="g-code-${cfg.id}" data-model="code" type="text" maxlength="4" autocomplete="off" value="${esc(cfg.code || "")}" style="text-transform:uppercase;letter-spacing:.2em"></label>` : ""}
+      <label for="g-name-${cfg.id}"><span class="small muted">Your name for tonight</span><input id="g-name-${cfg.id}" data-model="name" type="text" maxlength="24" autocomplete="off" value="${esc(L.name)}" placeholder="e.g. Nia"></label>
+      <button class="btn block" data-act="join" ${L.name.trim() ? "" : "disabled"}>Join the room</button></section>`;
+  }
+  function onboarding() {
+    const steps = `<div class="steps" aria-hidden="true">${[0, 1, 2, 3, 4].map(i => `<span class="${i <= L.step ? "on" : ""}"></span>`).join("")}</div>`;
+    const chips = (key, list) => `<div class="chips">${list.map(o => `<button class="chip" data-act="ans" data-key="${key}" data-val="${esc(o)}" aria-pressed="${L.ans[key] === o}">${esc(o)}</button>`).join("")}</div>`;
+    const nav = (canSkip = true) => `<div class="row" style="justify-content:space-between">${L.step > 0 ? `<button class="link" data-act="ob-back">Back</button>` : "<span></span>"}<div class="row">${canSkip ? `<button class="link" data-act="ob-next">Skip</button>` : ""}<button class="btn sm" data-act="ob-next">Next</button></div></div>`;
+    const head = (q, sub = "") => `${steps}<p class="label">About you · ${L.step + 1} of 5</p><h2>${q}</h2>${sub ? `<p class="muted">${sub}</p>` : ""}`;
+    let body = "";
+    if (L.step === 0) body = head("What field do you work in?") + chips("field", FIELDS) + nav();
+    if (L.step === 1) body = head("If your energy had a weather report today, what would it be?") + chips("weather", WEATHER) + nav();
+    if (L.step === 2) body = head("What do you want more of tonight?") + chips("want", WANTS) + nav();
+    if (L.step === 3) body = head("A little more, if you like", "Both are optional.") +
+      `<label for="g-noticed-${cfg.id}"><span class="small muted">What is one part of yourself you wish people noticed more?</span><textarea id="g-noticed-${cfg.id}" data-model="noticed" rows="2" maxlength="200">${esc(L.ans.noticed)}</textarea></label>
+       <label for="g-contact-${cfg.id}"><span class="small muted">Email or phone for after tonight. Shared only with people you both choose to stay connected with.</span><input id="g-contact-${cfg.id}" data-model="contact" type="text" maxlength="80" value="${esc(L.contact)}"></label>` + nav();
+    if (L.step === 4) body = `${steps}<p class="label">Before you finish</p><h2>Here's what we keep</h2>
+      <div class="card small"><p><b>What:</b> your name, these answers, and your contact if you gave one.</p><p><b>Who sees it:</b> only the host. Your partner sees your name. Your contact is shared only if you both choose to stay connected.</p><p><b>Never:</b> no microphone, no recording, no location.</p><p><b>Deleted:</b> when the host closes the room, or any time you tap Delete my data.</p></div>
+      <div class="toggle"><span>I understand</span><button class="switch" role="switch" aria-checked="${L.consent}" aria-label="I understand" data-act="consent"></button></div>
+      <div class="row" style="justify-content:space-between"><button class="link" data-act="ob-back">Back</button><button class="btn sm" data-act="ob-finish" ${L.consent ? "" : "disabled"}>Finish</button></div>`;
+    return `<section class="stack">${body}</section>`;
+  }
+  function witness(v) {
+    const g = v.group;
+    if (!g) return rest("Waiting to be paired", "A host will bring you in. Hold tight.");
+    const names = listNames(g.partners.map(p => p.name));
+    if (g.phase === "reveal") return `<section class="stack"><p class="label">The Witness</p><h2>You're with ${esc(names)} tonight.</h2><p class="muted">Find each other in the room. When you're together, tap start. You'll each have ${Math.round(v.turnSec / 60)} minute${v.turnSec > 60 ? "s" : ""} to speak.</p><button class="btn block" data-act="ready">We're together. Start.</button></section>`;
+    if (g.phase === "turns") {
+      const end = L.recvAt + g.remainingMs, total = v.turnSec * 1000;
+      const timer = `<div class="stack" style="gap:8px"><span class="timer" data-end="${end}">${fmt(Math.ceil(g.remainingMs / 1000))}</span><div class="bar"><i data-end="${end}" data-total="${total}" data-kind="bar" style="width:${100 * g.remainingMs / total}%"></i></div></div>`;
+      if (g.speakerId === v.me.id) return `<section class="stack"><p class="label">Your turn · ${g.turn + 1} of ${g.turnCount}</p><p class="prompt">${esc(PROMPT)}</p><p class="muted">Then: ${esc(FOLLOW)} No disclaimers. Let it land.</p>${timer}<div class="row"><button class="btn grow" data-act="done">I'm done</button><button class="btn ghost" data-act="done">Pass my turn</button></div></section>`;
+      return `<section class="stack"><div class="cold"><p class="label">You are witness</p><h2>${esc(g.speakerName)} is speaking.</h2><p class="muted">Put your eyes on her, not on the screen.</p></div>${timer}<p class="small dim">No advice, no fixing. Presence only.</p></section>`;
+    }
+    if (g.phase === "permission") return `<section class="stack"><p class="label">Before anyone writes</p><h2>Ask each other out loud</h2><p class="prompt">"What do I have permission to share about you?"</p><p class="muted">Agree together, then one of you taps below.</p><button class="btn block" data-act="agreed">We've agreed</button></section>`;
+    // brag and done
+    let mine = "";
+    const o = g.out;
+    if (o) {
+      if (o.status === "writing" || o.status === "change") {
+        mine = `<div class="card"><p class="label">Brag on ${esc(o.toName)}</p>
+          ${o.status === "change" ? `<p class="small" style="color:var(--warm)">${esc(o.toName)} asked for a change${o.note ? `: "${esc(o.note)}"` : "."}</p>` : ""}
+          <p class="muted small">Name what she did, then the skill it took. Only what she said you can share.</p>
+          <textarea id="g-brag-${cfg.id}" data-model="brag" rows="4" maxlength="280" placeholder="${esc(o.toName)} rebuilt her team's budget after a funding cut, and it took nerve and real strategy.">${esc(L.brag || (o.status === "change" ? o.text : ""))}</textarea>
+          <div class="row"><span class="small dim grow">${(L.brag || "").length}/280</span><button class="btn sm" data-act="brag-send" ${(L.brag || (o.status === "change" ? o.text : "")).trim() ? "" : "disabled"}>Send to ${esc(o.toName)}</button></div></div>`;
+      } else {
+        const msg = { pending: `Sent to ${o.toName}. She'll approve it.`, approved: `${o.toName} approved your brag.`, private: `${o.toName} kept it private. Thank you for writing it.` }[o.status];
+        mine = `<div class="card"><p class="label">Your brag on ${esc(o.toName)}</p><p class="serif" style="font-size:19px;font-style:italic">"${esc(o.text)}"</p><p class="small muted">${esc(msg)}</p></div>`;
+      }
+    }
+    const inn = g.inn.map(b => b.status === "pending"
+      ? `<div class="brag-card"><p class="label">${esc(b.fromName)} wrote this about you</p><q>${esc(b.text)}</q>
+          ${L.changing ? `<label for="g-note-${cfg.id}"><span class="small muted">What should she change?</span><input id="g-note-${cfg.id}" data-model="note" type="text" maxlength="140" value="${esc(L.note)}"></label><div class="row"><button class="btn sm" data-act="decide" data-val="change">Send note</button><button class="link" data-act="change-cancel">Cancel</button></div>`
+          : `<div class="row"><button class="btn sm" data-act="decide" data-val="approved">Approve</button><button class="btn ghost sm" data-act="change-open">Ask for a change</button><button class="link" data-act="decide" data-val="private">Keep it private</button></div>`}</div>`
+      : `<div class="brag-card"><p class="label">${esc(b.fromName)} on you · ${b.status === "approved" ? "approved" : "kept private"}</p>${b.text ? `<q>${esc(b.text)}</q>` : ""}</div>`).join("");
+    const head = g.phase === "done" ? `<p class="label">Brag on Her</p><h2>Beautiful.</h2><p class="muted">Your brag is saved for after tonight. Approved brags can be celebrated in the room.</p>` : `<p class="label">Brag on Her</p><h2>Now brag on her</h2>`;
+    return `<section class="stack">${head}${inn}${mine}</section>`;
+  }
+  function portrait(v) {
+    const word = L.ownWord.trim() || L.word;
+    const saved = v.me.permsSaved && !L.dirty;
+    const sw = (key, label) => `<div class="toggle"><span>${label}</span><button class="switch" role="switch" aria-label="${esc(label)}" aria-checked="${L.perms[key]}" data-act="perm" data-key="${key}"></button></div>`;
+    return `<section class="stack">${v.applause ? `<button class="applause" data-act="applause">Send applause to the room</button>` : ""}
+      <p class="label">Portrait session</p><h2>Nowhere to wear this</h2><p class="muted">Pick one word to tell the photographer.</p>
+      <div class="chips">${WORDS.map(w => `<button class="chip" data-act="word" data-val="${w}" aria-pressed="${!L.ownWord.trim() && L.word === w}">${w}</button>`).join("")}</div>
+      <label for="g-own-${cfg.id}"><span class="small muted">Or your own word</span><input id="g-own-${cfg.id}" data-model="ownWord" type="text" maxlength="20" value="${esc(L.ownWord)}"></label>
+      <div class="card"><p class="label">Your photos, your call</p>${sw("room", "Show my photo in the room tonight")}${sw("keep", "Keep it and send it to me")}${sw("use", "Use it in event materials")}</div>
+      ${saved ? `<p style="color:var(--ok)">Saved. Tell the photographer: <b>${esc(v.me.word || "no word")}</b></p>` : `<button class="btn block" data-act="portrait-save">Save</button>`}</section>`;
+  }
+  function afterScreen(v) {
+    const a = v.after;
+    const cards = a.cards.length ? a.cards.map(c => `<div class="brag-card"><p class="label">Brag on you · from ${esc(c.fromName)}</p><q>${esc(c.text)}</q></div>`).join("") : `<p class="muted small">No brag card saved.</p>`;
+    const photos = !a.keep ? `<p class="muted small">You chose not to keep photos. You can change this with a host.</p>`
+      : a.portraitsReady ? `<p class="small" style="color:var(--ok)">Ready</p><div class="strip">${[0, 1, 2, 3].map(() => `<i>${esc(a.word || "You")}</i>`).join("")}</div><p class="small dim">Demo placeholders for your portraits and photo booth strip.</p>`
+      : `<p class="muted small">Coming soon. We'll let you know here when they're ready.</p>`;
+    const conns = a.connections.length ? a.connections.map(c => `<div class="toggle"><div><b>${esc(c.name)}</b><p class="small muted">${c.mutual ? (c.contact ? `Connected · ${esc(c.contact)}` : "Connected · she didn't share contact details") : c.mine ? "Waiting for her to say yes too" : "Only shared if you both say yes"}</p></div>
+        <button class="btn ${c.mine ? "ghost" : ""} sm" data-act="connect" data-id="${c.id}" data-yes="${!c.mine}">${c.mine ? "Undo" : "Stay connected"}</button></div>`).join("") : `<p class="muted small">You weren't paired tonight.</p>`;
+    const nudges = a.nudgeSent && a.connections.length ? `<div class="card"><p class="label">Four weeks later</p>${a.connections.map(c => c.nudge === null
+        ? `<p>Do you still wish to maintain this connection with ${esc(c.name)}?</p><div class="row"><button class="btn sm" data-act="nudge" data-id="${c.id}" data-yes="true">Yes</button><button class="btn ghost sm" data-act="nudge" data-id="${c.id}" data-yes="false">Not now</button></div>`
+        : `<p class="small muted">${esc(c.name)}: ${c.nudge ? "you said yes. Reach out this week." : "thanks for letting us know."}</p>`).join("")}</div>` : "";
+    return `<section class="stack"><p class="label">After the event</p><h2>Thank you for tonight</h2>${nudges}
+      <div class="stack" style="gap:10px"><p class="label">Your brag card</p>${cards}</div>
+      <div class="card"><p class="label">Your portraits</p>${photos}</div>
+      <div class="card"><p class="label">People you were paired with</p>${conns}</div>
+      ${L.confirmDelete ? `<div class="card"><p>Delete your data from this room? Your answers, contact and word are removed.</p><div class="row"><button class="btn sm" data-act="delete-yes">Delete my data</button><button class="link" data-act="delete-no">Cancel</button></div></div>` : `<button class="link" data-act="delete" style="align-self:flex-start">Delete my data</button>`}</section>`;
+  }
+  function stageScreen(v) {
+    const st = v.stage, me = v.me;
+    if (me.deleted) return rest("Your data is deleted", "Nothing about you is kept in this room.");
+    if (st <= 2 && !me.onboarded) return onboarding();
+    if (st === 0) return rest("You're all set", "Put your phone away. We'll call you back when it's time.");
+    if (st === 2) return rest(STAGES[2].rest[0], STAGES[2].rest[1], `<button class="btn ghost" data-act="rules" style="align-self:flex-start">${L.showRules ? "Hide house rules" : "See house rules"}</button>${L.showRules ? `<div class="card"><ul class="small" style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px">${RULES.map(r => `<li>${esc(r)}</li>`).join("")}</ul></div>` : ""}`);
+    if (st === 3) return witness(v);
+    if (st === 4) return portrait(v);
+    if (st === 6) return rest(STAGES[6].rest[0], STAGES[6].rest[1], `<button class="btn ghost" data-act="q" style="align-self:flex-start">${L.showQ ? "Hide tonight's questions" : "See tonight's questions"}</button>${L.showQ ? `<div class="card">${QUESTIONS.map(q => `<p class="serif" style="font-size:20px;font-style:italic">${esc(q)}</p>`).join("")}</div>` : ""}`);
+    if (st === 9) return afterScreen(v);
+    return rest(STAGES[st].rest[0], STAGES[st].rest[1]);
+  }
+  function followAlong() {
+    return `<section class="stack"><p class="label">Follow along</p><h2>The host will call each stage aloud</h2><p class="muted">Your phone can't reach the host right now. Keep this open; it will reconnect on its own.</p>
+      <div class="card"><p class="label">The Witness</p><p class="prompt">${esc(PROMPT)}</p><p class="muted small">Then: ${esc(FOLLOW)} Before anyone shares a brag, ask: "What do I have permission to share about you?"</p></div>
+      <div class="card"><p class="label">House rules</p><ul class="small" style="margin:0;padding-left:18px">${RULES.map(r => `<li>${esc(r)}</li>`).join("")}</ul></div>
+      <button class="link" data-act="follow-off" style="align-self:flex-start">Back</button></section>`;
+  }
+  function sosSheet() {
+    const v = L.view;
+    if (!v || !v.me) return "";
+    if (v.sosState === "sent") return `<div class="sheet" role="status"><h2 class="serif" style="font-size:26px">A host is on the way.</h2><p class="muted">You don't need to explain. Stay where you are, or step into the quiet room.</p><button class="link" data-act="sos-cancel" style="align-self:flex-start">Cancel my signal</button></div>`;
+    if (L.sosConfirm) return `<div class="sheet" role="dialog" aria-label="Signal a host"><h2 class="serif" style="font-size:26px">Send a quiet signal to a host?</h2><p class="muted">Only the host sees it.</p><div class="row"><button class="btn grow" data-act="sos-send">Send signal</button><button class="btn ghost" data-act="sos-close">Not now</button></div></div>`;
+    return "";
+  }
+  function render() {
+    const v = L.view;
+    let body, stageName = "";
+    if (!v) body = rest("Connecting", "Finding your room…");
+    else if (L.follow) body = followAlong();
+    else if (v.ended) body = rest("Room closed", "Thank you for coming. You were seen at full size tonight.");
+    else if (v.status === "unknown") body = joinScreen();
+    else if (v.status === "pending") body = rest("Almost in", "The host will let you in shortly.");
+    else if (v.status === "removed") body = rest("Your spot is closed", "Please find a host if this is a mistake.");
+    else { body = stageScreen(v); stageName = STAGES[v.stage].name; }
+    const canSos = v && v.status === "in" && !v.ended && v.stage < 9 && v.me && !v.me.deleted;
+    const handled = v && v.sosState === "handled" ? `<p class="g-net" style="color:var(--ok);background:rgba(146,230,187,.08)">A host has it. She'll find you.</p>` : "";
+    keepFocus(root, () => {
+      root.innerHTML = `<div class="g"><header class="g-head"><span class="g-stage">${esc(stageName || (v && v.code ? "Room " + v.code : ""))}</span>${canSos ? `<button class="sos-btn" data-act="sos-open">Need a host</button>` : ""}</header>
+        ${L.net ? `<p class="g-net">${esc(L.net)}${cfg.live && L.net.startsWith("Can't") ? ` <button class="link" data-act="follow-on">Follow along</button>` : ""}</p>` : ""}${handled}
+        <div class="g-body" aria-live="polite">${body}</div>${sosSheet()}</div>`;
+    });
+  }
+  root.addEventListener("click", e => {
+    const t = e.target.closest("[data-act]");
+    if (!t || !root.contains(t) || t.disabled) return;
+    const act = t.dataset.act, v = L.view;
+    switch (act) {
+      case "join":
+        if (cfg.askCode) { const c = (cfg.code || "").toUpperCase(); if (c.length === 4 && cfg.onCode) { cfg.onCode(c, L.name.trim()); return; } }
+        store.set("udm-name", L.name.trim()); app.emit({ type: "join", name: L.name.trim() }); break;
+      case "ans": L.ans[t.dataset.key] = L.ans[t.dataset.key] === t.dataset.val ? "" : t.dataset.val; render(); break;
+      case "ob-next": L.step = Math.min(4, L.step + 1); render(); break;
+      case "ob-back": L.step = Math.max(0, L.step - 1); render(); break;
+      case "consent": L.consent = !L.consent; render(); break;
+      case "ob-finish": app.emit({ type: "onboard", answers: L.ans, contact: L.contact }); break;
+      case "rules": L.showRules = !L.showRules; render(); break;
+      case "q": L.showQ = !L.showQ; render(); break;
+      case "ready": app.emit({ type: "ready" }); break;
+      case "done": app.emit({ type: "done" }); break;
+      case "agreed": app.emit({ type: "agreed" }); break;
+      case "brag-send": { const o = v.group.out; const text = (L.brag || (o.status === "change" ? o.text : "")).trim(); if (text) app.emit({ type: "bragSubmit", text }); break; }
+      case "change-open": L.changing = true; L.note = ""; render(); break;
+      case "change-cancel": L.changing = false; render(); break;
+      case "decide": app.emit({ type: "bragDecide", decision: t.dataset.val, note: L.note }); L.changing = false; L.note = ""; break;
+      case "word": L.word = t.dataset.val; L.ownWord = ""; L.dirty = true; render(); break;
+      case "perm": L.perms[t.dataset.key] = !L.perms[t.dataset.key]; L.dirty = true; render(); break;
+      case "portrait-save": L.dirty = false; app.emit({ type: "portrait", word: L.ownWord.trim() || L.word, perms: L.perms }); break;
+      case "applause": app.emit({ type: "applause" }); vibe(15); break;
+      case "connect": app.emit({ type: "connect", to: t.dataset.id, yes: t.dataset.yes === "true" }); break;
+      case "nudge": app.emit({ type: "nudge", to: t.dataset.id, yes: t.dataset.yes === "true" }); break;
+      case "delete": L.confirmDelete = true; render(); break;
+      case "delete-no": L.confirmDelete = false; render(); break;
+      case "delete-yes": L.confirmDelete = false; app.emit({ type: "deleteMe" }); break;
+      case "sos-open": L.sosConfirm = true; render(); break;
+      case "sos-close": L.sosConfirm = false; render(); break;
+      case "sos-send": L.sosConfirm = false; vibe(20); app.emit({ type: "sos" }); break;
+      case "sos-cancel": app.emit({ type: "sosCancel" }); break;
+      case "follow-on": L.follow = true; render(); break;
+      case "follow-off": L.follow = false; render(); break;
+    }
+  });
+  root.addEventListener("input", e => {
+    const m = e.target.dataset.model;
+    if (!m) return;
+    const val = e.target.value;
+    if (m === "name") { L.name = val; const b = root.querySelector('[data-act="join"]'); if (b) b.disabled = !val.trim(); }
+    else if (m === "code") { cfg.code = val.toUpperCase(); }
+    else if (m === "noticed") L.ans.noticed = val;
+    else if (m === "contact") L.contact = val;
+    else if (m === "brag") { L.brag = val; const b = root.querySelector('[data-act="brag-send"]'); if (b) b.disabled = !val.trim(); const c = root.querySelector(".g-body .dim.grow"); if (c) c.textContent = val.length + "/280"; }
+    else if (m === "note") L.note = val;
+    else if (m === "ownWord") { L.ownWord = val; L.dirty = true; root.querySelectorAll('[data-act="word"]').forEach(c => c.setAttribute("aria-pressed", String(!val.trim() && L.word === c.dataset.val))); const s = root.querySelector('[data-act="portrait-save"]'); if (!s) render(); }
+  });
+  render();
+  return app;
+}
+
+/* ---------- modes ---------- */
+const appRoot = document.getElementById("app");
+const params = new URLSearchParams(location.search);
+/* optional self-hosted connection broker for testing: ?broker=host:port */
+const peerOpts = () => {
+  const b = params.get("broker");
+  if (!b || !/^[a-z0-9.-]+:\d{2,5}$/i.test(b)) return undefined;
+  const [h, p] = b.split(":");
+  return { host: h, port: +p, path: "/", secure: location.protocol === "https:" };
+};
+const inFrame = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
+const keepBroker = () => (params.get("broker") ? "&broker=" + encodeURIComponent(params.get("broker")) : "");
+
+function landing(msg = "") {
+  const saved = store.get("udm-host");
+  const resume = saved && !saved.ended ? `<div class="choice"><h2>Resume room ${esc(saved.code)}</h2><p class="muted small">${esc(saved.eventName)} · ${saved.order.length} guest${saved.order.length === 1 ? "" : "s"}</p><button class="btn" data-go="resume">Resume hosting</button></div>` : "";
+  appRoot.innerHTML = `<div class="wrap"><div class="landing">
+    <div class="orb" aria-hidden="true"></div><h1>Undiminished</h1>
+    <p class="lede">A host-led room where women leaders are seen at full size. The phone shows up only when it has a job, then gets out of the way.</p>
+    ${msg ? `<p style="color:var(--warm)">${esc(msg)}</p>` : ""}
+    <div class="choice"><h2>Run the demo</h2><p class="muted small">The host dashboard and three guest phones on one screen. Works anywhere, no network needed.</p><button class="btn" data-go="demo">Run the demo</button></div>
+    ${resume}
+    ${inFrame ? `<div class="choice"><h2>Live rooms</h2><p class="muted small">Live rooms with real phones can't run inside this preview. Download the file, put it on a web host such as Netlify Drop, and open that link to host a room for real.</p></div>` : `
+    <div class="choice"><h2>Host a live room</h2><p class="muted small">Use a laptop or tablet. Guests join from their own phones with a room code. Live rooms work when this page is opened from a web link, not from a downloaded file.</p><button class="btn ghost" data-go="host">Start a live room</button></div>
+    <div class="choice"><h2>Join a room</h2><label for="join-code"><span class="small muted">Room code from your host</span><input id="join-code" type="text" maxlength="4" autocomplete="off" style="text-transform:uppercase;letter-spacing:.2em"></label><button class="btn ghost" data-go="join">Join</button></div>`}
+  </div></div>`;
+  appRoot.onclick = e => {
+    const b = e.target.closest("[data-go]");
+    if (!b) return;
+    const go = b.dataset.go;
+    appRoot.onclick = null;
+    if (go === "demo") startDemo();
+    else if (go === "host") startLiveHost(null);
+    else if (go === "resume") startLiveHost(store.get("udm-host"));
+    else if (go === "join") { const c = (document.getElementById("join-code").value || "").trim().toUpperCase(); if (c.length === 4) startLiveGuest(c); else { landing("Enter the 4-letter room code."); } }
+  };
+}
+
+function startDemo() {
+  const host = createHost({ code: newCode() });
+  const names = ["Nia", "Imani", "Zora"];
+  const samples = [
+    { answers: { field: "Tech", weather: "Warm front", want: "To be heard", noticed: "how much I care about my team" }, contact: "nia@example.com" },
+    { answers: { field: "Policy", weather: "Storm passing", want: "To be celebrated", noticed: "my sense of humor" }, contact: "(555) 014-2290" },
+    { answers: { field: "Creative", weather: "First sun", want: "To find collaborators", noticed: "" }, contact: "zora@example.com" }
+  ];
+  appRoot.innerHTML = `<div class="wrap">
+    <div class="demo-bar"><div><p class="eyebrow">Demo mode</p><h1>One host, three guests</h1></div>
+      <div class="row"><button class="btn quiet sm" id="demo-fill">Fill in all three guests</button><button class="btn ghost sm" id="demo-reset">Start over</button></div></div>
+    <p class="small muted" style="margin:-6px 0 14px;max-width:80ch">Tap inside any phone to act as that guest. Move the room forward from the host dashboard. Example names and answers are for the demo only.</p>
+    <div class="demo-tabs" role="tablist">${["Host", ...names].map((n, i) => `<button data-pane="${i}" aria-pressed="${i === 0}">${i === 0 ? "Host dashboard" : n + "'s phone"}</button>`).join("")}</div>
+    <div class="demo-grid">
+      <div class="pane host-pane" data-pane-id="0" id="host-pane"></div>
+      ${names.map((n, i) => `<div class="pane is-off" data-pane-id="${i + 1}"><div class="phone-wrap"><span class="phone-label">${n}'s phone</span><div class="phone" id="phone-${i}"></div></div></div>`).join("")}
+    </div></div>`;
+  const guests = names.map((n, i) => {
+    const id = uid(10);
+    const app = createGuestApp(document.getElementById("phone-" + i), { id, presetName: n, demo: true });
+    app.emit = a => setTimeout(() => host.act(id, a), 0);
+    return { id, app };
+  });
+  host.send = (id, view) => { const g = guests.find(x => x.id === id); if (g) setTimeout(() => g.app.receive(view), 0); };
+  guests.forEach(g => g.app.receive({ code: host.S.code, eventName: host.S.eventName, stage: 0, status: "unknown" }));
+  mountHost(document.getElementById("host-pane"), host, { live: false, onRestart: startDemo });
+  document.getElementById("demo-fill").onclick = () => {
+    guests.forEach((g, i) => host.act(g.id, { type: "join", name: names[i] }));
+    host.hostAct({ type: "approveAll" });
+    guests.forEach((g, i) => { if (!host.G(g.id).onboarded) host.act(g.id, { type: "onboard", ...samples[i] }); });
+  };
+  document.getElementById("demo-reset").onclick = () => startDemo();
+  appRoot.querySelector(".demo-tabs").onclick = e => {
+    const b = e.target.closest("[data-pane]");
+    if (!b) return;
+    appRoot.querySelectorAll(".demo-tabs button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    appRoot.querySelectorAll(".pane").forEach(p => p.classList.toggle("is-off", p.dataset.paneId !== b.dataset.pane));
+  };
+}
+
+async function startLiveHost(saved) {
+  const code = saved ? saved.code : newCode();
+  const host = createHost({ code, saved, persistKey: "udm-host" });
+  const conns = {};
+  host.send = (id, view) => { const c = conns[id]; if (c && c.open) { try { c.send({ type: "view", view }); } catch (e) {} } };
+  appRoot.innerHTML = `<div class="host-page" id="host-root"></div>`;
+  mountHost(document.getElementById("host-root"), host, { live: true, onEnd: () => setTimeout(() => store.del("udm-host"), 1500), onRestart: () => { history.replaceState(null, "", location.pathname); landing(); } });
+  try { await loadScript(PEER_SRC); } catch (e) { host.setNet("Couldn't load the connection library. Check the internet connection, or use demo mode."); return; }
+  let tries = 0;
+  const open = () => {
+    let peer;
+    try { peer = new Peer(PEER_PREFIX + code, peerOpts()); } catch (e) { host.setNet("Live rooms can't run here. Open this page from a web link, or use demo mode."); return; }
+    peer.on("open", () => { tries = 0; host.setNet("Open for guests. Keep this screen on and plugged in."); });
+    peer.on("error", err => {
+      if (err.type === "unavailable-id" && tries < 6) { tries++; host.setNet("Reclaiming the room code…"); peer.destroy(); setTimeout(open, 3000); return; }
+      if (err.type === "peer-unavailable") return;
+      host.setNet("Connection problem (" + (err.type || "unknown") + "). Retrying…");
+    });
+    peer.on("disconnected", () => { host.setNet("Reconnecting…"); setTimeout(() => { try { if (!peer.destroyed) peer.reconnect(); } catch (e) {} }, 2000); });
+    peer.on("connection", conn => {
+      let gid = null;
+      conn.on("data", msg => {
+        if (!msg || typeof msg !== "object") return;
+        if (msg.type === "hello" && typeof msg.id === "string" && msg.id.length <= 40) {
+          gid = msg.id;
+          if (conns[gid] && conns[gid] !== conn) { try { conns[gid].close(); } catch (e) {} }
+          conns[gid] = conn; host.setOnline(gid, true); host.sendOne(gid);
+        } else if (msg.type === "act" && gid) host.act(gid, msg.a);
+      });
+      conn.on("close", () => { if (gid && conns[gid] === conn) { delete conns[gid]; host.setOnline(gid, false); } });
+    });
+  };
+  open();
+  try { navigator.wakeLock && navigator.wakeLock.request("screen").catch(() => {}); } catch (e) {}
+}
+
+async function startLiveGuest(code) {
+  code = code.toUpperCase();
+  let me = store.get("udm-guest");
+  if (!me || me.code !== code) me = { id: uid(10), code };
+  store.set("udm-guest", me);
+  history.replaceState(null, "", location.pathname + "?join=" + code + keepBroker());
+  appRoot.innerHTML = `<div class="guest-page" id="guest-root"></div>`;
+  const app = createGuestApp(document.getElementById("guest-root"), { id: me.id, live: true });
+  app.receive({ code, eventName: "", stage: 0, status: "unknown" });
+  app.setNet("Connecting to the room…");
+  try { await loadScript(PEER_SRC); } catch (e) { app.setNet("Can't load the connection. Check your internet."); return; }
+  let peer = null, conn = null, timer = null, fails = 0, gotView = false;
+  const retry = () => { if (timer) return; timer = setTimeout(() => { timer = null; connect(); }, 3000); };
+  const linkUp = () => {
+    conn = peer.connect(PEER_PREFIX + code, { reliable: true });
+    conn.on("open", () => { fails = 0; app.setNet(""); conn.send({ type: "hello", id: me.id }); });
+    conn.on("data", msg => { if (msg && msg.type === "view" && msg.view) { gotView = true; app.receive(msg.view); } });
+    conn.on("close", () => { app.setNet("Reconnecting…"); retry(); });
+    conn.on("error", () => retry());
+  };
+  const connect = () => {
+    if (peer && !peer.destroyed && peer.open) return linkUp();
+    try { peer = new Peer(peerOpts()); } catch (e) { app.setNet("Can't reach the host from here. Follow along with the host."); return; }
+    peer.on("open", linkUp);
+    peer.on("error", () => { fails++; app.setNet(fails > 2 && !gotView ? "Can't reach the host yet. Retrying…" : "Connecting to the room…"); retry(); });
+    peer.on("disconnected", () => { try { peer.reconnect(); } catch (e) {} });
+  };
+  app.emit = a => { if (conn && conn.open) conn.send({ type: "act", a }); else app.setNet("Not connected yet. Retrying…"); };
+  connect();
+}
+
+if (params.has("demo")) startDemo();
+else if (params.get("join") && params.get("join").length === 4) startLiveGuest(params.get("join"));
+else landing();
+</script>
+</body>
+</html>
